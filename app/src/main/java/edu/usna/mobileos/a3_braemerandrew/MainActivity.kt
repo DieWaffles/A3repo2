@@ -18,8 +18,8 @@ class MainActivity : AppCompatActivity(), ToDoListener {
         toDoListView.adapter = toDoAdapter
     }
 
-    override fun onItemClick(title: String) {
-        TODO("Not yet implemented")
+    override fun onItemClick(toDoItem: ToDo) {
+        return
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
