@@ -39,6 +39,12 @@ class MainActivity : AppCompatActivity(), ToDoListener {
     override fun onContextItemSelected(menuItem: MenuItem): Boolean {
         val position = menuItem.groupId
         val toDoItem = toDoList[position]
+        return when(menuItem.itemId){
+            R.id.show -> TODO("IMPLEMENT SHOW ITEM")
+            R.id.edit -> TODO("EDIT ITEM")
+            R.id.delete -> TODO("delete item")
+            else -> super.onContextItemSelected(menuItem)
+        }
     }
 }
 
@@ -79,6 +85,8 @@ class TextItemViewHolder(v: View): RecyclerView.ViewHolder(v), View.OnCreateCont
 interface ToDoListener{
     fun onItemClick(todoItem: ToDo)
 }
+
+
 
 
 
