@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), ToDoListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
             R.id.addOpt -> {
-                TODO("ADD NEW THING TO LIST IN A NEW ACTIVITY")
+                TODO("ADD NEW THING TO LIST IN A NEW ACTIVIT Y")
             }
             else -> super.onOptionsItemSelected(item)
         }
