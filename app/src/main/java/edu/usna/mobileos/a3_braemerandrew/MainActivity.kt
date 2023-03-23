@@ -2,10 +2,7 @@ package edu.usna.mobileos.a3_braemerandrew
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.ContextMenu
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.Serializable
@@ -16,13 +13,32 @@ class MainActivity : AppCompatActivity(), ToDoListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toDoListView : RecyclerView = findViewById(R.id.toDoList)
+        val toDoListView: RecyclerView = findViewById(R.id.toDoList)
         val toDoAdapter = ToDoAdapter(toDoList, this)
         toDoListView.adapter = toDoAdapter
     }
 
     override fun onItemClick(title: String) {
         TODO("Not yet implemented")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.addOpt -> {
+                TODO("ADD NEW THING TO LIST IN A NEW ACTIVITY")
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onContextItemSelected(menuItem: MenuItem): Boolean {
+        val position = menuItem.groupId
+        val toDoItem = toDoList[position]
     }
 }
 
@@ -41,16 +57,16 @@ class ToDoAdapter(val data: ArrayList<ToDo>, val listener: ToDoListener) : Recyc
     }
 
     override fun onBindViewHolder(holder: TextItemViewHolder, position: Int) {
-        holder.bind(data[position].title, listener)
+        holder.onBind(data[position], listener)
     }
 
 }
 
 class TextItemViewHolder(v: View): RecyclerView.ViewHolder(v), View.OnCreateContextMenuListener{
     val textView: TextView = v.findViewById(R.id.itemTextView)
-    fun bind(title: String, listener: ToDoListener){
-        textView.text = title
-        textView.setOnClickListener{ listener.onItemClick(title)}
+    fun onBind(toDoItem: ToDo, listener: ToDoListener){
+        textView.text = toDoItem.title
+        textView.setOnClickListener{ listener.onItemClick(toDoItem)}
         textView.setOnCreateContextMenuListener(this)
     }
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?){
@@ -61,7 +77,8 @@ class TextItemViewHolder(v: View): RecyclerView.ViewHolder(v), View.OnCreateCont
 }
 
 interface ToDoListener{
-    fun onItemClick(title: String)
+    fun onItemClick(todoItem: ToDo)
 }
+
 
 
