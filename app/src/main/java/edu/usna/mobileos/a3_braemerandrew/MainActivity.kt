@@ -13,21 +13,26 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
 import java.io.IOException
+import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import java.time.Month
 import java.util.*
 import java.util.Arrays.copyOf
+import java.util.Calendar.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), ToDoListener {
-    var toDoList = ArrayList<ToDo>()
-    var requestCode = 5
-    lateinit var toDoItemCurrent : ToDo
+    private var toDoList = ArrayList<ToDo>()
+    private var requestCode = 5
+    private lateinit var toDoItemCurrent : ToDo
     lateinit var toDoAdapter : ToDoAdapter
-    var toDoItemPos : Int = -1
+    private var toDoItemPos : Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toDoListView: RecyclerView = findViewById(R.id.toDoList)
+        toDoList = getDataFromFile()
         toDoAdapter = ToDoAdapter(toDoList, this)
         toDoListView.adapter = toDoAdapter
     }
@@ -60,14 +65,19 @@ class MainActivity : AppCompatActivity(), ToDoListener {
                         boolArray[whichButton] = isChecked
                     }
                     .setPositiveButton("Confirm"){ delSome, whichButton->
+                        var tList = ArrayList<ToDo>()
                         for(i in stringArray.indices) {
-                            if (boolArray[i]){
-                                var findName = stringArray[i]
-                                for(item in toDoList){
-                                    if(item.title.equals(findname))
-                                }
+                            if (!boolArray[i]){
+                                val tempToDo = toDoList[i]
+                                tList.add(tempToDo)
+                                Log.e("toDoDeleted","${tempToDo.title}")
                             }
                         }
+                        toDoList.clear()
+                        for(i in tList.indices){
+                            toDoList.add(tList[i])
+                        }
+                        refreshDataSet()
                         delSome.dismiss()
                     }
                     .setNegativeButton("Cancel"){ delSome, whichButton->
@@ -86,7 +96,9 @@ class MainActivity : AppCompatActivity(), ToDoListener {
         toDoItemCurrent = toDoList[toDoItemPos]
         return when(menuItem.itemId){
             R.id.show -> {
-                val showString : String = toDoItemCurrent.description + " " + toDoItemCurrent.created.toString()
+                val dateString : String = toDoItemCurrent.created.get(MONTH).toString() + '/' + toDoItemCurrent.created.get(
+                    DAY_OF_MONTH).toString() + '/' + toDoItemCurrent.created.get(YEAR).toString()
+                val showString : String = toDoItemCurrent.description + " " + dateString
                 val showDialog = AlertDialog.Builder(this)
                 showDialog.setTitle(toDoItemCurrent.title)
                     .setMessage(showString)
@@ -141,28 +153,43 @@ class MainActivity : AppCompatActivity(), ToDoListener {
         }
     }
 
-    fun refreshDataSet(){
+    private fun refreshDataSet(){
         toDoAdapter.notifyDataSetChanged()
     }
 
     override fun onPause(){
         saveObjectToFile("List", toDoList)
+        refreshDataSet()
         super.onPause()
     }
 
     override fun onStop(){
         saveObjectToFile("List",toDoList)
+        refreshDataSet()
         super.onStop()
     }
 
-    fun saveObjectToFile(fileName: String, obj: ArrayList<ToDo>){
+    private fun saveObjectToFile(fileName: String, obj: ArrayList<ToDo>){
         try {
             ObjectOutputStream(openFileOutput(fileName, MODE_PRIVATE)).use {
                 it.writeObject(obj)
+                it.flush()
             }
         }
         catch (e: IOException){
             Log.e("IT472", "IOException writing file $fileName")
+        }
+    }
+
+    private fun getDataFromFile() : ArrayList<ToDo> {
+        try{
+            ObjectInputStream(openFileInput("List")).use{
+                return it.readObject() as ArrayList<ToDo>
+            }
+        } catch(e: IOException){
+            Log.e("IT472","IOException reading file List")
+            var empty = ArrayList<ToDo>()
+            return empty
         }
     }
 
